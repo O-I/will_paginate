@@ -83,7 +83,7 @@ module WillPaginate
         end
       end
 
-      def count(*args)
+      def count(column_name = nil, options = {})
         if limit_value
           excluded = [:order, :limit, :offset, :reorder]
           excluded << :includes unless eager_loading?
@@ -91,10 +91,10 @@ module WillPaginate
           # TODO: hack. decide whether to keep
           rel = rel.apply_finder_options(@wp_count_options) if defined? @wp_count_options
           
-          column_name = (select_for_count(rel) || :all)
+          column_name = (select_value_for_count(rel) || :all)
           rel.count(column_name)
         else
-          super(*args)
+          super
         end
       end
 
@@ -146,7 +146,7 @@ module WillPaginate
         other
       end
       
-      def select_for_count(rel)
+      def select_value_for_count(rel)
         if rel.select_values.present?
           select = rel.select_values.join(", ")
           select if select !~ /[,*]/
